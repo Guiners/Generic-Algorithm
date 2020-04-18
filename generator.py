@@ -36,6 +36,7 @@ def fcelu_test(): #test
     b = 0 #maksymalna funkcja
     l = 0 #licznik/ wiersz
     p = 0 #przechowajka
+
     for i in range(len(things)):
         if w < capacity:
             b += df.iat[l, 1] #dodawanie wartosci
@@ -81,13 +82,14 @@ def pop(geny, osobniki):
 
 def mutacja_test(popu,szansa):
     for i in range(individual):
-        a = random.random()
+        a = random.random() #losowanie szansy na mutacje
         #print(a)
         if a < szansa:
-            b = random.randint(0, genes - 1)
+            b = random.randint(0, genes - 1) #losowanie miejsca mutacji
             #print('b=',b)
             #print(popu[i])
-            if popu[i, b] == 1:
+            
+            if popu[i, b] == 1: #mutacja
                 popu[i, b] = 0
             else:
                 popu[i, b] = 1
