@@ -28,34 +28,34 @@ data = {'name': things,
         'weight': weight,
         'ratio': ratio}
 
-table = pd.DataFrame(data, columns = ['name', 'value', 'weight', 'ratio'])
-table = table.sort_values('ratio', ascending = False)  #sorting data frame
-table = table.reset_index(drop = True)
+table_of_items = pd.DataFrame(data, columns = ['name', 'value', 'weight', 'ratio'])
+table_of_items = table_of_items.sort_values('ratio', ascending = False)  #sorting data frame
+table_of_items = table_of_items.reset_index(drop = True)
 
 def fcelu_test(): #test
     weight_for_fcelu = 0
     bound = 0 #biggest value possible
-    counter = 0 #number of row
-    store = 0
+    number_of_row = 0 #number of row
+    storage = 0
 
     for i in range(len(things)):
         if weight_for_fcelu < capacity:
-            bound += table.iat[counter, 1] #adding value of another item
-            weight_for_fcelu += table.iat[counter, 2] #adding weight of another item
+            bound += table_of_items.iat[number_of_row, 1] #adding value of another item
+            weight_for_fcelu += table_of_items.iat[number_of_row, 2] #adding weight of another item
             if weight_for_fcelu < capacity:
-                counter += 1 #getting in to lower row
+                number_of_row += 1 #getting in to lower row
             else:
-                bound -= table.iat[counter, 1] #deleting value of item which made backpack too heavy
-                weight_for_fcelu -= table.iat[counter, 2] #deleting weight of item which made backpack too heavy
-                store = capacity - weight_for_fcelu #counting how much weight it can accualy fit in
-                weight_for_fcelu += store #adding this value
+                bound -= table_of_items.iat[number_of_row, 1] #deleting value of item which made backpack too heavy
+                weight_for_fcelu -= table_of_items.iat[number_of_row, 2] #deleting weight of item which made backpack too heavy
+                storage = capacity - weight_for_fcelu #counting how much weight it can accualy fit in
+                weight_for_fcelu += storage #adding this value
                 #print('p=',p,'/',df.iat[l+1,2])
-                store = store / table.iat[counter + 1, 2] #counting value of left space
+                storage = storage / table_of_items.iat[number_of_row + 1, 2] #counting value of left space
                 #print('p=', p)
                 #print('p', p, '*',df.iat[l+1,1])
-                store = store * table.iat[counter + 1, 1] #counting value of left space
+                storage = storage * table_of_items.iat[number_of_row + 1, 1] #counting value of left space
                 #print('=',p)
-                bound += round(store,2) #adding it to value
+                bound += round(storage,2) #adding it to value
 
         if weight_for_fcelu == capacity: #ending the loop
             break
@@ -69,8 +69,8 @@ def pop(geny, osobniki):
             chance = random.random()
             if chance > 0.50:
                 population1[i, j] = 1 # is it taking this item
-                population1[i, geny] += table.iat[j, 1]   #value of every item in backpack
-                population1[i, geny + 1] += table.iat[j, 2]   #weight of every item in backpack
+                population1[i, geny] += table_of_items.iat[j, 1]   #value of every item in backpack
+                population1[i, geny + 1] += table_of_items.iat[j, 2]   #weight of every item in backpack
                 population1[i, geny + 2] =  round(population1[i,geny] / population1[i,geny + 1],2)  #ratio value/weight
                 #moze zamiast ratio wstawic tu b
                 if population1[i, geny + 1] <= capacity: #is backpack in capacity
@@ -128,7 +128,7 @@ print(ac)
 
 
 population = pop(genes, individual)
-print(table)
+print(table_of_items)
 print('capacity:', capacity)
 fcelu_test()
 print(population)
