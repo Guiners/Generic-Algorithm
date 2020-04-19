@@ -10,16 +10,17 @@ def int_list_to_str_list(set_of_items):
         else: items.append(str(set_of_items[i]))
     return items
 """
+
 genes = 8
 individual = 6
-value=np.random.randint(15, size = genes) #getting values
-weight=np.random.randint(3,9, size = genes) #getting weight
-capacity=int(weight.sum()*0.55) #getting capacity
-things=np.array(['a','b','c','d','e','f','g','h']) #object names
+value = np.random.randint(15, size = genes) #getting values
+weight = np.random.randint(3,9, size = genes) #getting weight
+capacity = int(weight.sum()*0.55) #getting capacity
+things = np.array(['a','b','c','d','e','f','g','h']) #object names
 ratio = [] #counting ratio value/weight
 
-for i in range(len(things)):
-    ratio.append(round(value[i]/weight[i],2))
+for i in range(len(things)): #counting ratio for every
+    ratio.append(round(value[i]/weight[i], 2))
 
 #creating dataframe
 data = {'name': things,
@@ -27,72 +28,73 @@ data = {'name': things,
         'weight': weight,
         'ratio': ratio}
 
-df = pd.DataFrame(data, columns = ['name', 'value', 'weight', 'ratio'])
-df = df.sort_values('ratio', ascending = False) #sorting data frame #czy trzeba to robic? czy nie lepiej kiedy losowo sa rozrzucone te watosci
-df = df.reset_index(drop = True)
+table = pd.DataFrame(data, columns = ['name', 'value', 'weight', 'ratio'])
+table = table.sort_values('ratio', ascending = False)  #sorting data frame
+table = table.reset_index(drop = True)
 
 def fcelu_test(): #test
-    w = 0 #waga
-    b = 0 #maksymalna funkcja
-    l = 0 #licznik/ wiersz
-    p = 0 #przechowajka
+    weight_for_fcelu = 0
+    bound = 0 #biggest value possible
+    counter = 0 #number of row
+    store = 0
 
     for i in range(len(things)):
-        if w < capacity:
-            b += df.iat[l, 1] #dodawanie wartosci
-            w += df.iat[l, 2] #dodawanie wagi
-            if w < capacity:
-                l += 1 #licznik +1 zeby przejsc do niższego wiersza
+        if weight_for_fcelu < capacity:
+            bound += table.iat[counter, 1] #adding value of another item
+            weight_for_fcelu += table.iat[counter, 2] #adding weight of another item
+            if weight_for_fcelu < capacity:
+                counter += 1 #getting in to lower row
             else:
-                b -= df.iat[l, 1]
-                w -= df.iat[l, 2]
-                p = capacity - w
-                w += p
+                bound -= table.iat[counter, 1] #deleting value of item which made backpack too heavy
+                weight_for_fcelu -= table.iat[counter, 2] #deleting weight of item which made backpack too heavy
+                store = capacity - weight_for_fcelu #counting how much weight it can accualy fit in
+                weight_for_fcelu += store #adding this value
                 #print('p=',p,'/',df.iat[l+1,2])
-                p = p/df.iat[l+1,2]
+                store = store / table.iat[counter + 1, 2] #counting value of left space
                 #print('p=', p)
                 #print('p', p, '*',df.iat[l+1,1])
-                p = p*df.iat[l+1,1]
+                store = store * table.iat[counter + 1, 1] #counting value of left space
                 #print('=',p)
-                b += round(p,2)
+                bound += round(store,2) #adding it to value
 
-        if w == capacity:
+        if weight_for_fcelu == capacity: #ending the loop
             break
-    print('b =', b, 'w =', w, 'l =', l)
+    print('bound =', bound, 'weight_fcelu =', weight_for_fcelu)
 
 def pop(geny, osobniki):
-    a = np.zeros((osobniki, geny + 4)) #4 bo wartosc, waga, ratio, czy mieści się w plecaku
+    population1 = np.zeros((osobniki, geny + 4)) #creating array full of zeros to make shape of array
+    #4 bo wartosc, waga, ratio, czy mieści się w plecaku
     for i in range(osobniki):
         for j in range(geny):
-            b = random.random()
-            if b > 0.50:
-                a[i, j] = 1 #czy bierze dany przedmiot
-                a[i, geny] += df.iat[j,1]   #wartość wszystkich przedmiotow
-                a[i, geny + 1] += df.iat[j,2]   #waga wszystkich przedmiotow
-                a[i, geny + 2] =  round(a[i,geny] / a[i,geny + 1],2)  #stosunek wartosci do wagi
+            chance = random.random()
+            if chance > 0.50:
+                population1[i, j] = 1 # is it taking this item
+                population1[i, geny] += table.iat[j, 1]   #value of every item in backpack
+                population1[i, geny + 1] += table.iat[j, 2]   #weight of every item in backpack
+                population1[i, geny + 2] =  round(population1[i,geny] / population1[i,geny + 1],2)  #ratio value/weight
                 #moze zamiast ratio wstawic tu b
-                if a[i, geny + 1] <= capacity: #czy jest mieści sie w granicach plecaka
-                    a[i, geny + 3] = 1
+                if population1[i, geny + 1] <= capacity: #is backpack in capacity
+                    population1[i, geny + 3] = 1
                 else:
-                    a[i, geny + 3] = 0
+                    population1[i, geny + 3] = 0
                 #czy mam stowrzyc funckje celu tak jak normalnie w problemie plecakowym to b?
 
-    return a
+    return population1
 
 
-def mutacja_test(popu,szansa):
+def mutacja_test(population2, szansa):
     for i in range(individual):
-        a = random.random() #losowanie szansy na mutacje
+        chance_for_mutation = random.random()
         #print(a)
-        if a < szansa:
-            b = random.randint(0, genes - 1) #losowanie miejsca mutacji
+        if chance_for_mutation < szansa:
+            mutation_place = random.randint(0, genes - 1)
             #print('b=',b)
             #print(popu[i])
-            
-            if popu[i, b] == 1: #mutacja
-                popu[i, b] = 0
+
+            if population2[i, mutation_place] == 1: #mutation
+                population2[i, mutation_place] = 0
             else:
-                popu[i, b] = 1
+                population2[i, mutation_place] = 1
             #print(popu[i])
             print("osobnik numer", i, "zmutował")
 
@@ -126,7 +128,7 @@ print(ac)
 
 
 population = pop(genes, individual)
-print(df)
+print(table)
 print('capacity:', capacity)
 fcelu_test()
 print(population)
