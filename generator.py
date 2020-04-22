@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import random as random
+
 """"
 def int_list_to_str_list(set_of_items):
     items=[]
@@ -12,91 +13,130 @@ def int_list_to_str_list(set_of_items):
 """
 
 genes = 8
-individual = 6
-value = np.random.randint(15, size = genes) #getting values
-weight = np.random.randint(3,9, size = genes) #getting weight
-capacity = int(weight.sum()*0.55) #getting capacity
-things = np.array(['a','b','c','d','e','f','g','h']) #object names
-ratio = [] #counting ratio value/weight
+individual = 100
+value = np.random.randint(15, size=genes)  # getting values
+weight = np.random.randint(3, 9, size=genes)  # getting weight
+capacity = int(weight.sum() * 0.55)  # getting capacity
+things = np.array(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])  # object names
+ratio = []  # counting ratio value/weight
 
-for i in range(len(things)): #counting ratio for every
-    ratio.append(round(value[i]/weight[i], 2))
+for i in range(len(things)):  # counting ratio for every
+    ratio.append(round(value[i] / weight[i], 2))
 
-#creating dataframe
+# creating dataframe
 data = {'name': things,
         'value': value,
         'weight': weight,
         'ratio': ratio}
 
-table_of_items = pd.DataFrame(data, columns = ['name', 'value', 'weight', 'ratio'])
-table_of_items = table_of_items.sort_values('ratio', ascending = False)  #sorting data frame
-table_of_items = table_of_items.reset_index(drop = True)
+table_of_items = pd.DataFrame(data, columns=['name', 'value', 'weight', 'ratio'])
+table_of_items = table_of_items.sort_values('ratio', ascending=False)  # sorting data frame
+table_of_items = table_of_items.reset_index(drop=True)
 
-def fcelu_test(): #test
-    weight_for_fcelu = 0
-    bound = 0 #biggest value possible
-    number_of_row = 0 #number of row
+"""
+def fcelu_test():  # test
+    weight_for_fcelu = 0  # to do wyjebania cala raczej
+    bound = 0  # biggest value possible
+    number_of_row = 0  # number of row
     storage = 0
 
     for i in range(len(things)):
         if weight_for_fcelu < capacity:
-            bound += table_of_items.iat[number_of_row, 1] #adding value of another item
-            weight_for_fcelu += table_of_items.iat[number_of_row, 2] #adding weight of another item
+            bound += table_of_items.iat[number_of_row, 1]  # adding value of another item
+            weight_for_fcelu += table_of_items.iat[number_of_row, 2]  # adding weight of another item
             if weight_for_fcelu < capacity:
-                number_of_row += 1 #getting in to lower row
+                number_of_row += 1  # getting in to lower row
             else:
-                bound -= table_of_items.iat[number_of_row, 1] #deleting value of item which made backpack too heavy
-                weight_for_fcelu -= table_of_items.iat[number_of_row, 2] #deleting weight of item which made backpack too heavy
-                storage = capacity - weight_for_fcelu #counting how much weight it can accualy fit in
-                weight_for_fcelu += storage #adding this value
-                #print('p=',p,'/',df.iat[l+1,2])
-                storage = storage / table_of_items.iat[number_of_row + 1, 2] #counting value of left space
-                #print('p=', p)
-                #print('p', p, '*',df.iat[l+1,1])
-                storage = storage * table_of_items.iat[number_of_row + 1, 1] #counting value of left space
-                #print('=',p)
-                bound += round(storage,2) #adding it to value
+                bound -= table_of_items.iat[number_of_row, 1]  # deleting value of item which made backpack too heavy
+                weight_for_fcelu -= table_of_items.iat[
+                    number_of_row, 2]  # deleting weight of item which made backpack too heavy
+                storage = capacity - weight_for_fcelu  # counting how much weight it can accualy fit in
+                weight_for_fcelu += storage  # adding this value
+                # print('p=',p,'/',df.iat[l+1,2])
+                storage = storage / table_of_items.iat[number_of_row + 1, 2]  # counting value of left space
+                # print('p=', p)
+                # print('p', p, '*',df.iat[l+1,1])
+                storage = storage * table_of_items.iat[number_of_row + 1, 1]  # counting value of left space
+                # print('=',p)
+                bound += round(storage, 2)  # adding it to value
 
-        if weight_for_fcelu == capacity: #ending the loop
+        if weight_for_fcelu == capacity:  # ending the loop
             break
     print('bound =', bound, 'weight_fcelu =', weight_for_fcelu)
+"""
 
-def pop(geny, osobniki):
-    population1 = np.zeros((osobniki, geny + 4)) #creating array full of zeros to make shape of array
-    #4 bo wartosc, waga, ratio, czy mieści się w plecaku
-    for i in range(osobniki):
-        for j in range(geny):
-            chance = random.random()
-            if chance > 0.50:
-                population1[i, j] = 1 # is it taking this item
-                population1[i, geny] += table_of_items.iat[j, 1]   #value of every item in backpack
-                population1[i, geny + 1] += table_of_items.iat[j, 2]   #weight of every item in backpack
-                population1[i, geny + 2] =  round(population1[i,geny] / population1[i,geny + 1],2)  #ratio value/weight
-                #moze zamiast ratio wstawic tu b
-                if population1[i, geny + 1] <= capacity: #is backpack in capacity
-                    population1[i, geny + 3] = 1
-                else:
-                    population1[i, geny + 3] = 0
-                #czy mam stowrzyc funckje celu tak jak normalnie w problemie plecakowym to b?
+def populationn(gen, individual):  # funkcja robienia populacji
+    population1 = np.random.randint(2, size = (individual, gen))
 
     return population1
 
 
-def mutacja_test(population2, szansa):
+def calc_backpack(population, data):
+    population_size = population.shape
+    values_weights = np.zeros((population_size[0],2))
+    for i in range(population_size[0]):
+        for j in range(population_size[1]):
+            if population[i, j] == 1:
+                values_weights[i,0] += data.iat[j,1] #value
+                values_weights[i,1] += data.iat[j,2] #weight
+   # print(values_weights)
+    return values_weights
+
+def rating(stats, capacity):
+    stats_size = stats.shape
+    rate = np.zeros((stats_size[0],))
+    for i in range(stats_size[0]):
+        if stats[i, 1] <= capacity: # checking if weight of this backpack is in capacity
+            if stats[i, 0] > 0: # u cant divide by 0
+                rate[i] += round(stats[i, 0] / stats[i, 1], 2) #counting ratio value divieded by weight
+            else:
+                rate[i] = 0
+
+    return rate
+
+#teraz funkcja selekcji - turniejowa
+
+def tournament(population, rating):
+    winers = []  #best individuals
+    not_zero_ratio = [] #nuumber of rows, where weight of backpack < capacity
+    for i in range(len(population[:,0])):
+        if rating[i] >= 0:
+            not_zero_ratio.append(i) #nuumber of rows, where weight of backpack =< capacity
+    for k in range(int((len(population[:,0]) * 0.4))):
+        rivals = []
+        not_zero_ratio_temporary = not_zero_ratio.copy() #makeing copy of the list
+        for j in range(int((len(population[:,0]) * 0.4))): #random take 40 individuals and choosing the best
+            chance = random.choice(not_zero_ratio_temporary)
+            if len(rivals) > 0:
+                if rating[rivals[0]] <= rating[chance]: #comparing new row with last winner
+                    rivals.pop()
+                    rivals.append(chance)
+            else:
+                rivals.append(chance)
+            not_zero_ratio_temporary.remove(chance) #removing used row
+        winers.append(rivals[0])
+    print(winers)
+    print(len(winers))
+
+    return winers
+
+
+def mutacja_test(population2, chance):
     for i in range(individual):
         chance_for_mutation = random.random()
-        #print(a)
-        if chance_for_mutation < szansa:
+        # print(a)
+        if chance_for_mutation < chance:
             mutation_place = random.randint(0, genes - 1)
-            #print('b=',b)
-            #print(popu[i])
+            # print('b=',b)
+            # print(popu[i])
 
-            if population2[i, mutation_place] == 1: #mutation
+            if population2[i, mutation_place] == 1:  # mutation
                 population2[i, mutation_place] = 0
             else:
                 population2[i, mutation_place] = 1
-            #print(popu[i])
+            # print(popu[i])
             print("osobnik numer", i, "zmutował")
+
 
 """
 value_str=int_list_to_str_list(value)
@@ -126,10 +166,15 @@ ac = ary[ary[:,0].argsort()]
 print(ac)
 """
 
-
-population = pop(genes, individual)
-print(table_of_items)
-print('capacity:', capacity)
-fcelu_test()
-print(population)
-mutacja_test(population, 0.02)
+population = populationn(genes, individual)
+#print(table_of_items)
+#print('capacity:', capacity)
+#fcelu_test()
+#print(population)
+#mutacja_test(population, 0.02)
+backpack_stats = calc_backpack(population, table_of_items)
+#print(backpack_stats)
+adaptation = rating(backpack_stats, capacity)
+#print(adaptation)
+best40 = tournament(population, adaptation)
+#print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
