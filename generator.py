@@ -12,12 +12,12 @@ def int_list_to_str_list(set_of_items):
     return items
 """
 
-genes = 8
+genes = 18
 individual = 100
 value = np.random.randint(15, size=genes)  # getting values
 weight = np.random.randint(3, 9, size=genes)  # getting weight
 capacity = int(weight.sum() * 0.55)  # getting capacity
-things = np.array(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])  # object names
+things = np.array(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h','i','j','k','l','m','n','o','p','r','s'])  # object names
 ratio = []  # counting ratio value/weight
 
 for i in range(len(things)):  # counting ratio for every
@@ -102,7 +102,7 @@ def tournament(population, rating):
     for i in range(len(population[:,0])):
         if rating[i] >= 0:
             not_zero_ratio.append(i) #nuumber of rows, where weight of backpack =< capacity
-    for k in range(int((len(population[:,0]) * 0.4))):
+    for k in range(int((len(population[:,0])))):
         rivals = []
         not_zero_ratio_temporary = not_zero_ratio.copy() #makeing copy of the list
         for j in range(int((len(population[:,0]) * 0.4))): #random take 40 individuals and choosing the best
@@ -138,6 +138,10 @@ def hybridization(population, winers, probability, gen):
             winers.pop(0)
 
         else:
+            child1 = population[winers[0]]
+            child2 = population[winers[1]]
+            new_population.append(child1)
+            new_population.append(child2)
             winers.pop(0)
             winers.pop(0)
     new_population = np.asanyarray(new_population)
@@ -198,7 +202,7 @@ print(ac)
 """
 population = populationn(genes, individual)
 
-for i in range(2):
+for i in range(20):
     #print(table_of_items)
     #print('capacity:', capacity)
     #fcelu_test()
