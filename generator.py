@@ -1,35 +1,35 @@
+
 import numpy as np
-import pandas as pd
 import random as random
+import pandas as pd
 
-""""
-def int_list_to_str_list(set_of_items):
-    items=[]
-    for i in range(len(set_of_items)):
-        if len(str(set_of_items[i]))==1:
-                items.append(" "+str(set_of_items[i]))
-        else: items.append(str(set_of_items[i]))
-    return items
-"""
-
-genes = 18
+file = np.loadtxt('ks_50_0', dtype=int)
+genes = file[0,0].copy()
 individual = 100
-value = np.random.randint(15, size=genes)  # getting values
-weight = np.random.randint(3, 9, size=genes)  # getting weight
-capacity = int(weight.sum() * 0.55)  # getting capacity
-things = np.array(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h','i','j','k','l','m','n','o','p','r','s'])  # object names
-ratio = []  # counting ratio value/weight
+capacity = file[0,1].copy()
 
-for i in range(len(things)):  # counting ratio for every
-    ratio.append(round(value[i] / weight[i], 2))
+items = file[1:,].copy()
 
-# creating dataframe
-data = {'name': things,
-        'value': value,
-        'weight': weight,
+
+#value = np.random.randint(15, size=genes)  # getting values
+#weight = np.random.randint(3, 9, size=genes)  # getting weight
+#capacity = int(weight.sum() * 0.55)  # getting capacity
+#things = np.array(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h','i','j','k','l','m','n','o','p','r','s'])  # object names
+
+#for i in range(len(things)):  # counting ratio for every
+    #ratio.append(round(value[i] / weight[i], 2))
+
+#creating dataframe
+ratio = []
+for i in range(genes):
+    ratio.append(items[i,0]/items[i,1])
+
+data = {
+        'value': items[:,0],
+        'weight': items[:,1],
         'ratio': ratio}
 
-table_of_items = pd.DataFrame(data, columns=['name', 'value', 'weight', 'ratio'])
+table_of_items = pd.DataFrame(data, columns=['value', 'weight', 'ratio'])
 table_of_items = table_of_items.sort_values('ratio', ascending=False)  # sorting data frame
 table_of_items = table_of_items.reset_index(drop=True)
 
@@ -71,14 +71,14 @@ def populationn(gen, individual):  # funkcja robienia populacji
     return population1
 
 
-def calc_backpack(population, data):
+def calc_backpack(population, data): #tu moze byc bład
     population_size = population.shape
     values_weights = np.zeros((population_size[0],2))
     for i in range(population_size[0]):
         for j in range(population_size[1]):
             if population[i, j] == 1:
                 values_weights[i,0] += data.iat[j,1] #value
-                values_weights[i,1] += data.iat[j,2] #weight
+                values_weights[i,1] += data.iat[j,2] #weight    #
    # print(values_weights)
     return values_weights
 
@@ -115,8 +115,8 @@ def tournament(population, rating):
                 rivals.append(chance)
             not_zero_ratio_temporary.remove(chance) #removing used row
         winers.append(rivals[0])
-    print(winers)
-    print(len(winers))
+    #xprint(winers)
+    #print(len(winers))
 
     return winers
 
@@ -145,7 +145,7 @@ def hybridization(population, winers, probability, gen):
             winers.pop(0)
             winers.pop(0)
     new_population = np.asanyarray(new_population)
-    print(new_population)
+    #print(new_population)
 
     return new_population
 
@@ -171,6 +171,8 @@ def mutacja_test(population2, chance):
                 population2[i, mutation_place] = 1
             # print(popu[i])
             print("osobnik numer", i, "zmutował")
+
+
 
 
 """
@@ -201,17 +203,17 @@ ac = ary[ary[:,0].argsort()]
 print(ac)
 """
 population = populationn(genes, individual)
-
-for i in range(20):
-    #print(table_of_items)
-    #print('capacity:', capacity)
-    #fcelu_test()
-    #print(population)
-    backpack_stats = calc_backpack(population, table_of_items)
-    #print(backpack_stats)
-    adaptation = rating(backpack_stats, capacity)
-    #print(adaptation)
-    best40 = tournament(population, adaptation)
-    #print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
-    population = hybridization(population, best40, probability=0.85, gen=genes)
-    mutacja_test(population, 0.02)
+for k in range(2):
+    for i in range(1000):
+        #print(table_of_items)
+        #print('capacity:', capacity)
+        #fcelu_test()
+        #print(population)
+        backpack_stats = calc_backpack(population, table_of_items)
+        print(backpack_stats[:,0])
+        adaptation = rating(backpack_stats, capacity)
+        #print(adaptation)
+        best40 = tournament(population, adaptation)
+        #print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
+        population = hybridization(population, best40, probability=0.85, gen=genes)
+        mutacja_test(population, 0.02)
