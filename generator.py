@@ -110,7 +110,7 @@ def tournament(population, rating):
             if len(rivals) > 0:
                 if rating[rivals[0]] <= rating[chance]: #comparing new row with last winner
                     rivals.pop()
-                    rivals.append(chance)
+                    rivals.append(chance) #variable in rivals has the highest ratio
             else:
                 rivals.append(chance)
             not_zero_ratio_temporary.remove(chance) #removing used row
@@ -121,8 +121,39 @@ def tournament(population, rating):
     return winers
 
 
+def hybridization(population, winers, probability, gen):
+    new_population = []
+    while len(winers) != 0:
+        #print('winners', len(winers))
+        chance_for_hybrid = random.random() #git
+        if chance_for_hybrid <= probability: #git
+            place_of_hybrid = random.randrange(gen)
+            child1 = np.concatenate(([population[winers[0],  : place_of_hybrid], population[winers[1], place_of_hybrid - gen:]]))   #git
+            child2 = np.concatenate(([population[winers[1], :place_of_hybrid], population[winers[0], place_of_hybrid - gen:]]))  #git
+            new_population.append(child1)
+            new_population.append(child2)
+            #print(child1)
+            #print(child2)
+            winers.pop(0)
+            winers.pop(0)
+
+        else:
+            winers.pop(0)
+            winers.pop(0)
+    new_population = np.asanyarray(new_population)
+    print(new_population)
+
+    return new_population
+
+
+
+
+
+
 def mutacja_test(population2, chance):
-    for i in range(individual):
+    population2_size = population2.shape
+
+    for i in range(population2_size[1]):
         chance_for_mutation = random.random()
         # print(a)
         if chance_for_mutation < chance:
@@ -165,16 +196,18 @@ print(ary.dtype)
 ac = ary[ary[:,0].argsort()]
 print(ac)
 """
-
 population = populationn(genes, individual)
-#print(table_of_items)
-#print('capacity:', capacity)
-#fcelu_test()
-#print(population)
-#mutacja_test(population, 0.02)
-backpack_stats = calc_backpack(population, table_of_items)
-#print(backpack_stats)
-adaptation = rating(backpack_stats, capacity)
-#print(adaptation)
-best40 = tournament(population, adaptation)
-#print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
+
+for i in range(2):
+    #print(table_of_items)
+    #print('capacity:', capacity)
+    #fcelu_test()
+    #print(population)
+    backpack_stats = calc_backpack(population, table_of_items)
+    #print(backpack_stats)
+    adaptation = rating(backpack_stats, capacity)
+    #print(adaptation)
+    best40 = tournament(population, adaptation)
+    #print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
+    population = hybridization(population, best40, probability=0.85, gen=genes)
+    mutacja_test(population, 0.02)
