@@ -220,25 +220,35 @@ ac = ary[ary[:,0].argsort()]
 print(ac)
 """
 population = populationn(genes, individual)
-
-for k in range(100):
-    for i in range(100):
-        #print(table_of_items)
-        #print('capacity:', capacity)
-        #fcelu_test()
-        #print(population)
-        backpack_stats = calc_backpack(population, table_of_items)
-        adaptation = rating(backpack_stats, capacity)
-        #print(adaptation)
-        best40 = tournament(population, adaptation)
-        #print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
-        population = hybridization(population, best40, probability=0.85, gen=genes)
-        mutacja_test(population, 0.02)
-
-
+print("population")
 for i in range(individual):
     print(population[i])
-print(capacity)
+print(table_of_items)
+print('capacity:', capacity)
+
+
+for i in range(200):
+    print('population number', i)
+    #fcelu_test()
+    backpack_stats = calc_backpack(population, table_of_items)
+    adaptation = rating(backpack_stats, capacity)
+    #print(adaptation)
+    best40 = tournament(population, adaptation)
+    #print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
+    population = hybridization(population, best40, probability=0.85, gen=genes)
+    mutacja_test(population, 0.02)
+    print("population")
+    for k in range(individual):
+        print(population[k])
+
+    print("value and weight of every individual")
+    print(backpack_stats)
+
+print("FINAL population")
+for i in range(individual):
+    print(population[i])
+
+print("FINAL value and weight of every individual")
 print(backpack_stats)
 
 
