@@ -70,10 +70,21 @@ def fcelu_test():  # test
     print('bound =', bound, 'weight_fcelu =', weight_for_fcelu)
 
 
-def populationn(gen, individual):  # funkcja robienia populacji
-    population1 = np.random.randint(2, size = (individual, gen))
+def populationn(gen, individual):
+    populatioon = np.zeros((individual, gen)) #makeing array of 0
+    for i in range(individual):
+        weight = 0 #weight of individual
+        place = 0 #item to take
+        for j in range(gen):
+            place = random.randrange(0, gen)
+            b = random.random() #take or not the item
+            if b > 0.50:
+                populatioon[i, place] = 1 #addin item
+                weight += table_of_items.iat[place,1]
+                if weight > capacity: #if its in capacity
+                    populatioon[i,place] = 0
 
-    return population1
+    return populatioon
 
 
 def calc_backpack(population, data): #tu moze byc bład
@@ -92,14 +103,11 @@ def rating(stats, capacity):
     stats_size = stats.shape
     rate = np.zeros((stats_size[0],))
     for i in range(stats_size[0]):
-        print("sss",stats[i,1])
         if stats[i, 1] <= capacity: # checking if weight of this backpack is in capacity
-            rate[i] += stats[i, 0] / stats[i, 1] #counting ratio value divieded by weight
-            print('b',rate[i])
-        else:
-            rate[i] = 0
-            print('b', rate[i])
-
+            if stats[i, 0] > 0:  # u cant divide by 0
+                rate[i] += round(stats[i, 0] / stats[i, 1], 2)  # counting ratio value divieded by weight
+            else:
+                rate[i] = 0
     return rate
 
 #teraz funkcja selekcji - turniejowa
@@ -212,8 +220,9 @@ ac = ary[ary[:,0].argsort()]
 print(ac)
 """
 population = populationn(genes, individual)
-for k in range(1):
-    for i in range(1):
+
+for k in range(100):
+    for i in range(100):
         #print(table_of_items)
         #print('capacity:', capacity)
         #fcelu_test()
@@ -233,5 +242,5 @@ print(capacity)
 print(backpack_stats)
 
 
-#komentarz waga konkretnego osobnika (wlasciwie kazdego) wykracza ponad limit
-#wydaje mi sie ze trzeba bedzie zrobic limit plecaka przy losowaniu populacji
+#komentarz waga konkretnego osobnika (wlasciwie kazdego) wykracza ponad limit done
+#wydaje mi sie ze trzeba bedzie zrobic limit plecaka przy losowaniu populacji done
