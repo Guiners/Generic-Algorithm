@@ -3,9 +3,9 @@ import numpy as np
 import random as random
 import pandas as pd
 
-file = np.loadtxt('ks_30_0', dtype=int)
+file = np.loadtxt('ks_50_0', dtype=int)
 genes = file[0,0].copy()
-individual = 50
+individual = 200
 capacity = file[0,1].copy()
 
 items = file[1:,].copy()
@@ -105,13 +105,15 @@ def rating(stats, capacity):
     for i in range(stats_size[0]):
         if stats[i, 1] <= capacity: # checking if weight of this backpack is in capacity
             if stats[i, 0] > 0:  # u cant divide by 0
-                rate[i] += round(stats[i, 0] / stats[i, 1], 2)  # counting ratio value divieded by weight
+                rate[i] += stats[i, 0]  # counting ratio value divieded by weight
             else:
                 rate[i] = 0
     return rate
 
 #teraz funkcja selekcji - turniejowa
 
+
+#przebudowac
 def tournament(population, rating):
     winers = []  #best individuals
     not_zero_ratio = [] #nuumber of rows, where weight of backpack < capacity
@@ -220,14 +222,14 @@ ac = ary[ary[:,0].argsort()]
 print(ac)
 """
 population = populationn(genes, individual)
-print("population")
-for i in range(individual):
-    print(population[i])
-print(table_of_items)
-print('capacity:', capacity)
+#print("population")
+#for i in range(individual):
+    #print(population[i])
+#print(table_of_items)
+#print('capacity:', capacity)
 
 
-for i in range(200):
+for i in range(10000):
     print('population number', i)
     #fcelu_test()
     backpack_stats = calc_backpack(population, table_of_items)
@@ -236,10 +238,10 @@ for i in range(200):
     best40 = tournament(population, adaptation)
     #print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
     population = hybridization(population, best40, probability=0.85, gen=genes)
-    mutacja_test(population, 0.02)
-    print("population")
-    for k in range(individual):
-        print(population[k])
+    mutacja_test(population, 0.2)
+   # print("population")
+    #for k in range(individual):
+     #   print(population[k])
 
     print("value and weight of every individual")
     print(backpack_stats)
