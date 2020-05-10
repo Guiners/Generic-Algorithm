@@ -4,8 +4,9 @@ import random as random
 import pandas as pd
 
 file = np.loadtxt('ks_200_0', dtype=int)
-genes = file[0,0].copy()
-individual = 100
+genes = int(file[0,0].copy())
+print(type(genes))
+individual = 50
 capacity = file[0,1].copy()
 #print(file[0,1].copy())
 
@@ -141,7 +142,7 @@ def tournament(population, rating):
     for k in range(int((len(population[:, 0])))):
         rivals = []
         not_zero_ratio_temporary = not_zero_ratio.copy()  # makeing copy of the list
-        for j in range(int((len(population[:, 0]) * 0.3))):  # random take 40 individuals and choosing the best
+        for j in range(int((len(population[:, 0]) * 0.25))):  # random take 40 individuals and choosing the best
             chance = random.choice(not_zero_ratio_temporary)
             #print('kupa',j,chance)
             #print(population[chance])
@@ -198,23 +199,36 @@ def hybridization(population, winers, probability, gen):
 
 
 #przejrzec
-def mutacja_test(population2, chance):
+def mutacja_test(population2, chance, genes):
     population2_size = population2.shape
     for i in range(population2_size[0]):
         chance_for_mutation = random.random()
         # print(a)
         if chance_for_mutation < chance:
-            for k in range(2): #tutaj może jakaś smieszna zależnoś
 
-                mutation_place = random.randint(0, genes - 1)
-                # print('b=',b)
-                # print(popu[i])
+            mutation_place = random.randint(0, genes - 1)
+            # print('b=',b)
+            # print(popu[i])
+            ones = []
+            zeros = []
 
-                if population2[i, mutation_place] == 1:  # mutation
-                    population2[i, mutation_place] = 0
+            if population2[i, mutation_place] == 1:  # mutation
+                population2[i, mutation_place] = 0
+                for k in range(len(population2[i,:])):
+                    if population2[i,k] == 0:
+                        zeros.append(k)
+                        #print(zeros)
+                population2[i,(random.choice(zeros))] = 0
 
-                else:
-                    population2[i, mutation_place] = 1
+
+
+            else:
+                population2[i, mutation_place] = 1
+                for k in range(len(population2[i,:])):
+                    if population2[i,k] == 1:
+                        ones.append(k)
+                        #print(ones)
+                population2[i,(random.choice(ones))] = 0
 
     return population2
 
@@ -260,18 +274,18 @@ best_in_all = 0
 #print('capacity:', capacity)
 
 
-for i in range(5000):
+for i in range(10000):
     #print('population number', i)
     #fcelu_test()
     backpack_stats = calc_backpack(population, table_of_items)
     adaptation, best_in_all, best_in_population = rating(backpack_stats, capacity, best_in_all)
-    print("the best individual in population number",i ,"has", best_in_population, 'value')
+    #print("the best individual in population number",i ,"has", best_in_population, 'value')
     #print(adaptation)
     best40, avrage = tournament(population, adaptation)
-    print("avrage of this population is equal", avrage)
+    #print("avrage of this population is equal", avrage)
     #print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
-    population = hybridization(population, best40, probability=0.9, gen=genes)
-    population = mutacja_test(population, 0.02)
+    population = hybridization(population, best40, probability=0.90, gen=genes)
+    population = mutacja_test(population, 0.001, genes)
     #print(best)
     #for k in range(individual):
      #   print(population[k])
