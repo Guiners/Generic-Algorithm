@@ -5,8 +5,7 @@ import pandas as pd
 
 file = np.loadtxt('ks_200_0', dtype=int)
 genes = int(file[0,0].copy())
-print(type(genes))
-individual = 50
+#individual = 16
 capacity = file[0,1].copy()
 #print(file[0,1].copy())
 
@@ -40,19 +39,21 @@ def fcelu_test():  # test
     weight_for_fcelu = 0
     bound = 0  # biggest value possible
     number_of_row = 0  # number of row
-    storage = 0
+    number_of_items = 0
 
     for i in range(genes):
         if weight_for_fcelu < capacity:
             bound += table_of_items.iat[number_of_row, 1]  # adding value of another item
             weight_for_fcelu += table_of_items.iat[number_of_row, 2]  # adding weight of another item
+            number_of_items += 1
             if weight_for_fcelu < capacity:
                 number_of_row += 1  # getting in to lower row
 
             else:
                 bound -= table_of_items.iat[number_of_row, 1]  # deleting value of item which made backpack too heavy
-                weight_for_fcelu -= table_of_items.iat[
-                    number_of_row, 2]  # deleting weight of item which made backpack too heavy
+                weight_for_fcelu -= table_of_items.iat[number_of_row, 2]  # deleting weight of item which made backpack too heavy
+                number_of_items -= 1
+
                 break
                 """
                 storage = capacity - weight_for_fcelu  # counting how much weight it can accualy fit in
@@ -69,12 +70,15 @@ def fcelu_test():  # test
 
         if weight_for_fcelu == capacity:  # ending the loop
             break
-    print('bound =', bound, 'weight_fcelu =', weight_for_fcelu)
+    #print('bound =', bound, 'weight_fcelu =', weight_for_fcelu)
+    return number_of_items
 
 
-def populationn(gen, individual):
+def populationn(gen, individual,nob):
     populatioon = np.zeros((individual, gen)) #makeing array of 0
-    for i in range(individual):
+    for k in range(nob):
+        populatioon[0,k] += 1
+    for i in range(1,individual):
         weight = 0 #weight of individual
         place = 0 #item to take
         for j in range(gen):
@@ -84,7 +88,7 @@ def populationn(gen, individual):
                 populatioon[i, place] = 1 #addin item
                 weight += table_of_items.iat[place,1]
                 if weight > capacity: #if its in capacity
-                    populatioon[i,place] = 0
+                  populatioon[i,place] = 0
 
     return populatioon
 
@@ -129,7 +133,7 @@ def rating(stats, capacity, best_all):
 
 
 #przebudowac
-def tournament(population, rating):
+def tournament(population, rating, number):
     winers = []  #best individuals
     avrage = []
 
@@ -141,8 +145,8 @@ def tournament(population, rating):
 
     for k in range(int((len(population[:, 0])))):
         rivals = []
-        not_zero_ratio_temporary = not_zero_ratio.copy()  # makeing copy of the list
-        for j in range(int((len(population[:, 0]) * 0.25))):  # random take 40 individuals and choosing the best
+        not_zero_ratio_temporary = not_zero_ratio.copy()  # making copy of the list
+        for j in range(int((len(population[:, 0]) * number))):  # random take 40 individuals and choosing the best
             chance = random.choice(not_zero_ratio_temporary)
             #print('kupa',j,chance)
             #print(population[chance])
@@ -199,36 +203,36 @@ def hybridization(population, winers, probability, gen):
 
 
 #przejrzec
-def mutacja_test(population2, chance, genes):
+def mutacja_test(population2, chance, genes, number):
     population2_size = population2.shape
     for i in range(population2_size[0]):
         chance_for_mutation = random.random()
         # print(a)
         if chance_for_mutation < chance:
+            for k in range(number):
+                mutation_place = random.randint(0, genes - 1)
+                # print('b=',b)
+                # print(popu[i])
+                ones = []
+                zeros = []
 
-            mutation_place = random.randint(0, genes - 1)
-            # print('b=',b)
-            # print(popu[i])
-            ones = []
-            zeros = []
-
-            if population2[i, mutation_place] == 1:  # mutation
-                population2[i, mutation_place] = 0
-                for k in range(len(population2[i,:])):
-                    if population2[i,k] == 0:
-                        zeros.append(k)
-                        #print(zeros)
-                population2[i,(random.choice(zeros))] = 0
+                if population2[i, mutation_place] == 1:  # mutation
+                    population2[i, mutation_place] = 0
+                    for k in range(len(population2[i,:])):
+                        if population2[i,k] == 0:
+                            zeros.append(k)
+                            #print(zeros)
+                    population2[i,(random.choice(zeros))] = 0
 
 
 
-            else:
-                population2[i, mutation_place] = 1
-                for k in range(len(population2[i,:])):
-                    if population2[i,k] == 1:
-                        ones.append(k)
-                        #print(ones)
-                population2[i,(random.choice(ones))] = 0
+                else:
+                    population2[i, mutation_place] = 1
+                    for k in range(len(population2[i,:])):
+                        if population2[i,k] == 1:
+                            ones.append(k)
+                            #print(ones)
+                    population2[i,(random.choice(ones))] = 0
 
     return population2
 
@@ -265,27 +269,35 @@ print(ary.dtype)
 ac = ary[ary[:,0].argsort()]
 print(ac)
 """
-population = populationn(genes, individual)
-best_in_all = 0
+
 #print("population")
 #for i in range(individual):
     #print(population[i])
 #print(table_of_items)
 #print('capacity:', capacity)
 
+#stats
+individual = 80
+number_of_individuals_in_tournament = 0.2
+chance_for_mutation = 0.005
+chance_for_hybridization = 0.95
+number_of_changes_in_mutation = 2
+naive_individual = fcelu_test()
+population = populationn(genes, individual, naive_individual)
+best_in_all = 0
 
 for i in range(10000):
     #print('population number', i)
     #fcelu_test()
     backpack_stats = calc_backpack(population, table_of_items)
     adaptation, best_in_all, best_in_population = rating(backpack_stats, capacity, best_in_all)
-    #print("the best individual in population number",i ,"has", best_in_population, 'value')
+    print("the best individual in population number",i ,"has", best_in_population, 'value')
     #print(adaptation)
-    best40, avrage = tournament(population, adaptation)
-    #print("avrage of this population is equal", avrage)
+    best40, avrage = tournament(population, adaptation, number_of_individuals_in_tournament)
+    print("avrage of this population is equal", avrage)
     #print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
-    population = hybridization(population, best40, probability=0.90, gen=genes)
-    population = mutacja_test(population, 0.001, genes)
+    population = hybridization(population, best40, probability= chance_for_hybridization, gen=genes)
+    population = mutacja_test(population, chance_for_mutation, genes, number_of_changes_in_mutation)
     #print(best)
     #for k in range(individual):
      #   print(population[k])
