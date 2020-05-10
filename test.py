@@ -3,10 +3,11 @@ import numpy as np
 import random as random
 import pandas as pd
 
-file = np.loadtxt('ks_50_0', dtype=int)
+file = np.loadtxt('ks_200_0', dtype=int)
 genes = file[0,0].copy()
-individual = 200
+individual = 100
 capacity = file[0,1].copy()
+#print(file[0,1].copy())
 
 items = file[1:,].copy()
 
@@ -33,7 +34,7 @@ table_of_items = pd.DataFrame(data, columns=['value', 'weight', 'ratio'])
 table_of_items = table_of_items.sort_values('ratio', ascending = False)  # sorting data frame
 table_of_items = table_of_items.reset_index(drop=True)
 
-
+#poloso
 def fcelu_test():  # test
     weight_for_fcelu = 0
     bound = 0  # biggest value possible
@@ -78,7 +79,7 @@ def populationn(gen, individual):
         for j in range(gen):
             place = random.randrange(0, gen)
             b = random.random() #take or not the item
-            if b > 0.50:
+            if b > 0.49:
                 populatioon[i, place] = 1 #addin item
                 weight += table_of_items.iat[place,1]
                 if weight > capacity: #if its in capacity
@@ -99,16 +100,29 @@ def calc_backpack(population, data): #tu moze byc bład
     return values_weights
 
 
-def rating(stats, capacity):
+
+
+def rating(stats, capacity, best_all):
+    best_in_pop = 0
     stats_size = stats.shape
     rate = np.zeros((stats_size[0],))
     for i in range(stats_size[0]):
         if stats[i, 1] <= capacity: # checking if weight of this backpack is in capacity
             if stats[i, 0] > 0:  # u cant divide by 0
-                rate[i] += stats[i, 0]  # counting ratio value divieded by weight
+                rate[i] += stats[i, 0]
             else:
                 rate[i] = 0
-    return rate
+
+            if rate.item(i) >= best_all: #getting best individual in all population
+               best_all = rate.item(i)
+
+            if rate.item(i) > best_in_pop: #getting best individual in this population
+                best_in_pop = rate.item(i)
+        else:
+            rate[i] = 0
+
+    #print('o',rate)
+    return rate, best_all, best_in_pop
 
 #teraz funkcja selekcji - turniejowa
 
@@ -116,29 +130,39 @@ def rating(stats, capacity):
 #przebudowac
 def tournament(population, rating):
     winers = []  #best individuals
-    not_zero_ratio = [] #nuumber of rows, where weight of backpack < capacity
-    for i in range(len(population[:,0])):
-        if rating[i] >= 0:
-            not_zero_ratio.append(i) #nuumber of rows, where weight of backpack =< capacity
-    for k in range(int((len(population[:,0])))):
+    avrage = []
+
+    not_zero_ratio = []  # nuumber of rows, where weight of backpack < capacity
+    avrage = []
+    for i in range(len(population[:, 0])):
+        not_zero_ratio.append(i)  # nuumber of rows, where weight of backpack =< capacity
+        avrage.append(rating[i])
+
+    for k in range(int((len(population[:, 0])))):
         rivals = []
-        not_zero_ratio_temporary = not_zero_ratio.copy() #makeing copy of the list
-        for j in range(int((len(population[:,0]) * 0.4))): #random take 40 individuals and choosing the best
+        not_zero_ratio_temporary = not_zero_ratio.copy()  # makeing copy of the list
+        for j in range(int((len(population[:, 0]) * 0.3))):  # random take 40 individuals and choosing the best
             chance = random.choice(not_zero_ratio_temporary)
+            #print('kupa',j,chance)
+            #print(population[chance])
             if len(rivals) > 0:
-                if rating[rivals[0]] <= rating[chance]: #comparing new row with last winner
+                #print(rating[rivals[0]], '<', rating[chance])
+                if rating[rivals[0]] < rating[chance]:  # comparing new row with last winner
                     rivals.pop()
-                    rivals.append(chance) #variable in rivals has the highest ratio
+                    rivals.append(chance)  # variable in rivals has the highest ratio
             else:
                 rivals.append(chance)
-            not_zero_ratio_temporary.remove(chance) #removing used row
+            not_zero_ratio_temporary.remove(chance)  # removing used row
         winers.append(rivals[0])
+
+    avrage = sum(avrage) / len(avrage)
     #xprint(winers)
     #print(len(winers))
 
-    return winers
+    return winers, avrage
 
 
+#przejrzec
 def hybridization(population, winers, probability, gen):
     new_population = []
     while len(winers) != 0:
@@ -164,6 +188,7 @@ def hybridization(population, winers, probability, gen):
             winers.pop(0)
 
     new_population = np.asanyarray(new_population)
+
     #print(new_population)
 
     return new_population
@@ -172,22 +197,27 @@ def hybridization(population, winers, probability, gen):
 
 
 
-
+#przejrzec
 def mutacja_test(population2, chance):
     population2_size = population2.shape
-
-    for i in range(population2_size[1]):
+    for i in range(population2_size[0]):
         chance_for_mutation = random.random()
         # print(a)
         if chance_for_mutation < chance:
-            mutation_place = random.randint(0, genes - 1)
-            # print('b=',b)
-            # print(popu[i])
+            for k in range(2): #tutaj może jakaś smieszna zależnoś
 
-            if population2[i, mutation_place] == 1:  # mutation
-                population2[i, mutation_place] = 0
-            else:
-                population2[i, mutation_place] = 1
+                mutation_place = random.randint(0, genes - 1)
+                # print('b=',b)
+                # print(popu[i])
+
+                if population2[i, mutation_place] == 1:  # mutation
+                    population2[i, mutation_place] = 0
+
+                else:
+                    population2[i, mutation_place] = 1
+
+    return population2
+
             # print(popu[i])
             #print("osobnik numer", i, "zmutował")
 
@@ -222,6 +252,7 @@ ac = ary[ary[:,0].argsort()]
 print(ac)
 """
 population = populationn(genes, individual)
+best_in_all = 0
 #print("population")
 #for i in range(individual):
     #print(population[i])
@@ -229,30 +260,32 @@ population = populationn(genes, individual)
 #print('capacity:', capacity)
 
 
-for i in range(10000):
-    print('population number', i)
+for i in range(5000):
+    #print('population number', i)
     #fcelu_test()
     backpack_stats = calc_backpack(population, table_of_items)
-    adaptation = rating(backpack_stats, capacity)
+    adaptation, best_in_all, best_in_population = rating(backpack_stats, capacity, best_in_all)
+    print("the best individual in population number",i ,"has", best_in_population, 'value')
     #print(adaptation)
-    best40 = tournament(population, adaptation)
+    best40, avrage = tournament(population, adaptation)
+    print("avrage of this population is equal", avrage)
     #print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
-    population = hybridization(population, best40, probability=0.85, gen=genes)
-    mutacja_test(population, 0.2)
-   # print("population")
+    population = hybridization(population, best40, probability=0.9, gen=genes)
+    population = mutacja_test(population, 0.02)
+    #print(best)
     #for k in range(individual):
      #   print(population[k])
 
-    print("value and weight of every individual")
-    print(backpack_stats)
+    #print("value and weight of every individual")
+    #print(backpack_stats)
 
-print("FINAL population")
-for i in range(individual):
-    print(population[i])
+#print("FINAL population")
+#for i in range(individual):
+    #print(population[i])
+print("the best individual in all population has", best_in_all, 'value')
 
-print("FINAL value and weight of every individual")
-print(backpack_stats)
-
+#print("FINAL value and weight of every individual")
+#print(backpack_stats)
 
 #komentarz waga konkretnego osobnika (wlasciwie kazdego) wykracza ponad limit done
 #wydaje mi sie ze trzeba bedzie zrobic limit plecaka przy losowaniu populacji done
