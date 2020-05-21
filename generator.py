@@ -3,6 +3,7 @@ import numpy as np
 import random as random
 import pandas as pd
 import pygame
+import os
 import time
 
 file = np.loadtxt('ks_50_0', dtype=int)
@@ -255,8 +256,13 @@ background_colour = (0,0,0)
 screen = pygame.display.set_mode((screen_width, screen_height))
 screen.fill(background_colour)
 pygame.display.set_caption("Generic Algoritm")
-font = pygame.font.SysFont("comicsansms", 50)
-font1 = pygame.font.SysFont("comicsansms", 40)
+#font = pygame.font.SysFont("Arial", 30)
+font = pygame.font.Font(os.path.join("font.ttf"), 30)
+font1 = pygame.font.Font(os.path.join("font.ttf"), 40)
+
+
+
+#font1 = pygame.font.SysFont("Arial", 15)
 clock = pygame.time.Clock()
 
 
@@ -302,7 +308,6 @@ def draw():
     screen.blit(text6, (10, (60 + text1.get_height() * 5)))
     screen.blit(text7, (10, (70 + text1.get_height() * 6)))
     screen.blit(text8, (10, (screen_height - text1.get_height())))
-
 
     pygame.display.flip()
 
