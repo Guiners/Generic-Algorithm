@@ -74,8 +74,8 @@ def populationn(gen, individual):
             if b > 0.49:
                 populatioon[i, place] = 1 #addin item
                 weight += table_of_items.iat[place,1]
-                if weight > capacity: #if its in capacity
-                  populatioon[i,place] = 0
+                #if weight > capacity: #if its in capacity
+                  #populatioon[i,place] = 0
 
     return populatioon
 
@@ -235,7 +235,8 @@ def mutacja_test(population2, chance, genes, number):
 #print('capacity:', capacity)
 
 #stats
-individual = 10
+individual = 100
+population_number = 1000
 number_of_individuals_in_tournament = 0.4
 chance_for_mutation = 0.001
 chance_for_hybridization = 0.85
@@ -283,7 +284,6 @@ def draw():
 
     nump = np.random.randint(2, size=50)#zmiana potem na najlepszego
     nump1 = np.array2string(nump, separator=".")
-    file_name = font.render('File name: ' + "x", True, (0, 255, 65))
     text1 = font.render('Population number: ' + str(i), True, (0, 255, 65))
     text2 = font.render('Best individual in all populations: ' + str(best_in_all), True, (0, 255, 65))
     text3 = font.render('Avrage: ' + str(avrage), True, (0, 255, 65))
@@ -292,24 +292,18 @@ def draw():
     text6 = font.render('Genes: ' + str(genes), True, (0, 255, 65))
     text7 = font.render('Chance for mutation: ' + str(chance_for_mutation), True, (0, 255, 65))
     text8 = font.render('Click SPACE to start', True, (0, 255, 65))
-    nump = np.random.randint(2, size=50)
 
 
-    nump1 = np.array2string(nump, separator=".")
-    text_best_individual = font1.render(nump1, True, (0,255,65))
-
-    screen.blit(file_name, (10, 10))
-    screen.blit(text1, (10, (20 + text1.get_height())))
-    screen.blit(text3, (10, (30 + text1.get_height() * 2)))
-    screen.blit(text2, (10, (40 + text1.get_height() * 3)))
-    screen.blit(text4, (10, round((screen_height - text_best_individual.get_height()) / 2 - text1.get_height() + 70)))
+    screen.blit(text1, (10, 10))
+    screen.blit(text3, (10, (20 + text1.get_height())))
+    screen.blit(text2, (10, (30 + text1.get_height() * 2)))
+    screen.blit(text4, (10, (40 + text1.get_height() * 3)))
     screen.blit(text5, (10, (50 + text1.get_height() * 4)))
     screen.blit(text6, (10, (60 + text1.get_height() * 5)))
     screen.blit(text7, (10, (70 + text1.get_height() * 6)))
     screen.blit(text8, (10, (screen_height - text1.get_height())))
 
-    screen.blit(text_best_individual, (round((screen_width - text_best_individual.get_width()) / 2),
-                                       round((screen_height - text_best_individual.get_height()) / 2) + 100))
+
     pygame.display.flip()
 
     pygame.display.update()
@@ -327,7 +321,7 @@ while running:
             backpack_stats = calc_backpack(population, table_of_items)
             adaptation, best_in_all, best_in_population = rating(backpack_stats , capacity, best_in_all)
 
-        for i in range(100):
+        for i in range(population_number):
             #print('population number', i)
             #fcelu_test()
             backpack_stats = calc_backpack(population, table_of_items)
