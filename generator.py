@@ -75,8 +75,8 @@ def populationn(gen, individual):
             if b > 0.49:
                 populatioon[i, place] = 1 #addin item
                 weight += table_of_items.iat[place,1]
-                #if weight > capacity: #if its in capacity
-                  #populatioon[i,place] = 0
+                if weight > capacity: #if its in capacity
+                  populatioon[i,place] = 0
 
     return populatioon
 
@@ -123,13 +123,12 @@ def rating(stats, capacity, best_all):
 #przebudowac
 def tournament(population, rating, number):
     winers = []  #best individuals
-    avrage = []
 
     not_zero_ratio = []  # nuumber of rows, where weight of backpack < capacity
-    avrage = []
+    average = []
     for i in range(len(population[:, 0])):
         not_zero_ratio.append(i)  # nuumber of rows, where weight of backpack =< capacity
-        avrage.append(rating[i])
+        average.append(rating[i])
 
     for k in range(int((len(population[:, 0])))):
         rivals = []
@@ -148,11 +147,11 @@ def tournament(population, rating, number):
             not_zero_ratio_temporary.remove(chance)  # removing used row
         winers.append(rivals[0])
 
-    avrage = sum(avrage) / len(avrage)
+    average = sum(average) / len(average)
     #xprint(winers)
     #print(len(winers))
 
-    return winers, avrage
+    return winers, average
 
 
 #przejrzec
@@ -236,33 +235,29 @@ def mutacja_test(population2, chance, genes, number):
 #print('capacity:', capacity)
 
 #stats
-individual = 100
-population_number = 1000
+individual = 40
+population_number = 10000
 number_of_individuals_in_tournament = 0.4
-chance_for_mutation = 0.001
+chance_for_mutation = 0.5
 chance_for_hybridization = 0.85
 number_of_changes_in_mutation = 1
 best_in_all = 0
 population = 0
 i = 0
-avrage = 0
+average = 0
 best_in_population = 0
 
 pygame.init()
 
-screen_width = 1200
-screen_height = 600
+screen_width = 1300
+screen_height = 800
 background_colour = (0,0,0)
 screen = pygame.display.set_mode((screen_width, screen_height))
 screen.fill(background_colour)
-pygame.display.set_caption("Generic Algoritm")
-#font = pygame.font.SysFont("Arial", 30)
-font = pygame.font.Font(os.path.join("font.ttf"), 30)
-font1 = pygame.font.Font(os.path.join("font.ttf"), 40)
+pygame.display.set_caption("Generic Algorithm")
+font = pygame.font.Font(os.path.join("font.ttf"), 25)
+font_color = (0, 255, 65)
 
-
-
-#font1 = pygame.font.SysFont("Arial", 15)
 clock = pygame.time.Clock()
 
 
@@ -288,16 +283,16 @@ nump = np.random.randint(2, size=50)
 def draw():
     screen.fill(background_colour)
 
-    nump = np.random.randint(2, size=50)#zmiana potem na najlepszego
-    nump1 = np.array2string(nump, separator=".")
-    text1 = font.render('Population number: ' + str(i), True, (0, 255, 65))
-    text2 = font.render('Best individual in all populations: ' + str(best_in_all), True, (0, 255, 65))
-    text3 = font.render('Avrage: ' + str(avrage), True, (0, 255, 65))
-    text4 = font.render('Currently best individual: ' + str(best_in_population), True, (0, 255, 65))
-    text5 = font.render('Individuals: ' + str(individual), True, (0, 255, 65))
-    text6 = font.render('Genes: ' + str(genes), True, (0, 255, 65))
-    text7 = font.render('Chance for mutation: ' + str(chance_for_mutation), True, (0, 255, 65))
-    text8 = font.render('Click SPACE to start', True, (0, 255, 65))
+    #nump = np.random.randint(2, size=50)#zmiana potem na najlepszego
+    #nump1 = np.array2string(nump, separator=".")
+    text1 = font.render('Population number: ' + str(i), True, font_color)
+    text2 = font.render('Best individual in all populations: ' + str(best_in_all), True, font_color)
+    text3 = font.render('Average: ' + str(average), True, font_color)
+    text4 = font.render('Currently best individual: ' + str(best_in_population), True, font_color)
+    text5 = font.render('Individuals: ' + str(individual), True, font_color)
+    text6 = font.render('Genes: ' + str(genes), True, font_color)
+    text7 = font.render('Chance for mutation: ' + str(chance_for_mutation), True, font_color)
+    text8 = font.render('Click SPACE to start', True, font_color)
 
 
     screen.blit(text1, (10, 10))
@@ -310,13 +305,48 @@ def draw():
     screen.blit(text8, (10, (screen_height - text1.get_height())))
 
     pygame.display.flip()
-
     pygame.display.update()
 
+
 draw()
+########matrix
+def matrix(population):
+    startx = 480
+    starty = 60
+    sizex = screen_width - startx - 10
+    sizey = screen_height - starty - 10
+    pop_size = population.shape
+    rect_sizex = sizex/pop_size[1]    #size of single rect
+    rect_sizey = sizey/pop_size[0]
+    text1 = font.render('G  E  N  E  S', True, font_color)
+    screen.blit(text1, (startx + sizex * 0.5 - text1.get_width(), starty - 50 ))
+    #text2 = font.render('...' + str(genes - 2) + ',' + str(genes - 1) + ',' + str(genes), True, font_color)
+    #screen.blit(text2, (startx + sizex - text2.get_width(), starty - 50 ))
+    name = 'INDIVIDUALS'
+    counter = 0
+    for k in name:
+        counter +=1
+        text2 = font.render(str(k), True, font_color)
+        screen.blit(text2, (startx - text2.get_width() - 25, starty + 100 + (text2.get_height() * counter)))
+
+    pygame.display.flip()
+    pygame.display.update()
+    for i in range(pop_size[0]):
+        for j in range(pop_size[1]):
+            if population[i,j] == 1:
+                pygame.draw.rect(screen,font_color,(startx + rect_sizex*j, starty + rect_sizey*i,rect_sizex,rect_sizey), 2)
+            else:
+                pygame.draw.rect(screen,(0,0,0),(startx + rect_sizex*j, starty + rect_sizey*i,rect_sizex,rect_sizey))
+
+        """if i%2 == 0:
+            pygame.display.flip()
+            pygame.display.update()"""
+
+    pygame.display.flip()
+    pygame.display.update()
 running = True
 while running:
-    clock.tick(32)
+    clock.tick(20)
     keys =pygame.key.get_pressed()
     if keys[pygame.K_SPACE]:
         print(1)
@@ -327,38 +357,27 @@ while running:
             adaptation, best_in_all, best_in_population = rating(backpack_stats , capacity, best_in_all)
 
         for i in range(population_number):
-            #print('population number', i)
-            #fcelu_test()
+            matrix(population)
             backpack_stats = calc_backpack(population, table_of_items)
             adaptation, best_in_all, best_in_population = rating(backpack_stats, capacity, best_in_all)
             print("the best individual in population number",i ,"has", best_in_population, 'value')
             #print(adaptation)
-            best40, avrage = tournament(population, adaptation, number_of_individuals_in_tournament)
-            print("avrage of this population is equal", avrage)
+            best40, average = tournament(population, adaptation, number_of_individuals_in_tournament)
+            print("average of this population is equal", average)
             #print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
             population = hybridization(population, best40, probability= chance_for_hybridization, gen=genes)
             population = mutacja_test(population, chance_for_mutation, genes, number_of_changes_in_mutation)
             draw()
+            time.sleep(0.2)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
 
 
-            #print(best)
-
-            #for k in range(individual):
-             #   print(population[k])
-
-            #print("value and weight of every individual")
-            #print(backpack_stats)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
-
-        #print("FINAL population")
-        #for i in range(individual):
-            #print(population[i])
-
-        #print("FINAL value and weight of every individual")
-        #print(backpack_stats)
 
 
