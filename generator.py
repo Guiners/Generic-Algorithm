@@ -329,8 +329,6 @@ def matrix(population):
         text2 = font.render(str(k), True, font_color)
         screen.blit(text2, (startx - text2.get_width() - 25, starty + 100 + (text2.get_height() * counter)))
 
-    pygame.display.flip()
-    pygame.display.update()
     for i in range(pop_size[0]):
         for j in range(pop_size[1]):
             if population[i,j] == 1:
@@ -357,7 +355,6 @@ while running:
             adaptation, best_in_all, best_in_population = rating(backpack_stats , capacity, best_in_all)
 
         for i in range(population_number):
-            matrix(population)
             backpack_stats = calc_backpack(population, table_of_items)
             adaptation, best_in_all, best_in_population = rating(backpack_stats, capacity, best_in_all)
             print("the best individual in population number",i ,"has", best_in_population, 'value')
@@ -368,7 +365,9 @@ while running:
             population = hybridization(population, best40, probability= chance_for_hybridization, gen=genes)
             population = mutacja_test(population, chance_for_mutation, genes, number_of_changes_in_mutation)
             draw()
-            time.sleep(0.2)
+            matrix(population)
+
+#            time.sleep(0.6)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
