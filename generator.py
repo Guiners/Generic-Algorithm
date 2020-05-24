@@ -4,13 +4,10 @@ import random as random
 import pandas as pd
 import pygame
 import os
-import time
 
 file = np.loadtxt('ks_50_0', dtype=int)
 genes = int(file[0,0].copy())
-#individual = 16
 capacity = file[0,1].copy()
-#print(file[0,1].copy())
 items = file[1:,].copy()
 
 #creating dataframe
@@ -24,44 +21,6 @@ data = {
         'ratio': ratio }
 
 table_of_items = pd.DataFrame(data, columns=['value', 'weight', 'ratio'])
-#table_of_items = table_of_items.sort_values('ratio', ascending = False)  # sorting data frame
-#table_of_items = table_of_items.reset_index(drop=True)
-
-#poloso
-def fcelu_test():  # test
-    weight_for_fcelu = 0
-    bound = 0  # biggest value possible
-    number_of_row = 0  # number of row
-    storage = 0
-
-    for i in range(genes):
-        if weight_for_fcelu < capacity:
-            bound += table_of_items.iat[number_of_row, 1]  # adding value of another item
-            weight_for_fcelu += table_of_items.iat[number_of_row, 2]  # adding weight of another item
-            if weight_for_fcelu < capacity:
-                number_of_row += 1  # getting in to lower row
-
-            else:
-                bound -= table_of_items.iat[number_of_row, 1]  # deleting value of item which made backpack too heavy
-                weight_for_fcelu -= table_of_items.iat[
-                    number_of_row, 2]  # deleting weight of item which made backpack too heavy
-                break
-                """
-                storage = capacity - weight_for_fcelu  # counting how much weight it can accualy fit in
-                weight_for_fcelu += storage  # adding this value
-                # print('p=',p,'/',df.iat[l+1,2])
-                storage = storage / table_of_items.iat[number_of_row + 1, 2]  # counting value of left space
-                # print('p=', p)
-                # print('p', p, '*',df.iat[l+1,1])
-                storage = storage * table_of_items.iat[number_of_row + 1, 1]  # counting value of left space
-                # print('=',p)
-                bound += round(storage, 2)  # adding it to value
-                """
-        break
-
-        if weight_for_fcelu == capacity:  # ending the loop
-            break
-    print('bound =', bound, 'weight_fcelu =', weight_for_fcelu)
 
 
 def populationn(gen, individual):
@@ -75,8 +34,8 @@ def populationn(gen, individual):
             if b > 0.49:
                 populatioon[i, place] = 1 #addin item
                 weight += table_of_items.iat[place,1]
-                if weight > capacity: #if its in capacity
-                  populatioon[i,place] = 0
+                #if weight > capacity: #if its in capacity
+                  #populatioon[i,place] = 0
 
     return populatioon
 
@@ -89,7 +48,7 @@ def calc_backpack(population, data): #tu moze byc bład
             if population[i, j] == 1:
                 values_weights[i,0] += data.iat[j,0] #value
                 values_weights[i,1] += data.iat[j,1] #weight
-   # print(values_weights)
+
     return values_weights
 
 
@@ -114,16 +73,12 @@ def rating(stats, capacity, best_all):
         else:
             rate[i] = 0
 
-    #print('o',rate)
     return rate, best_all, best_in_pop
 
-#teraz funkcja selekcji - turniejowa
 
 
-#przebudowac
 def tournament(population, rating, number):
     winers = []  #best individuals
-
     not_zero_ratio = []  # nuumber of rows, where weight of backpack < capacity
     average = []
     for i in range(len(population[:, 0])):
@@ -135,10 +90,7 @@ def tournament(population, rating, number):
         not_zero_ratio_temporary = not_zero_ratio.copy()  # making copy of the list
         for j in range(int((len(population[:, 0]) * number))):  # random take 40 individuals and choosing the best
             chance = random.choice(not_zero_ratio_temporary)
-            #print('kupa',j,chance)
-            #print(population[chance])
             if len(rivals) > 0:
-                #print(rating[rivals[0]], '<', rating[chance])
                 if rating[rivals[0]] < rating[chance]:  # comparing new row with last winner
                     rivals.pop()
                     rivals.append(chance)  # variable in rivals has the highest ratio
@@ -148,26 +100,21 @@ def tournament(population, rating, number):
         winers.append(rivals[0])
 
     average = sum(average) / len(average)
-    #xprint(winers)
-    #print(len(winers))
 
     return winers, average
 
 
-#przejrzec
 def hybridization(population, winers, probability, gen):
     new_population = []
+
     while len(winers) != 0:
-        #print('winners', len(winers))
-        chance_for_hybrid = random.random() #git
-        if chance_for_hybrid <= probability: #git
+        chance_for_hybrid = random.random()
+        if chance_for_hybrid <= probability:
             place_of_hybrid = random.randrange(gen)
-            child1 = np.concatenate(([population[winers[0],  : place_of_hybrid], population[winers[1], place_of_hybrid - gen:]]))   #git
+            child1 = np.concatenate(([population[winers[0], : place_of_hybrid], population[winers[1], place_of_hybrid - gen:]]))   #git
             child2 = np.concatenate(([population[winers[1], :place_of_hybrid], population[winers[0], place_of_hybrid - gen:]]))  #git
             new_population.append(child1)
             new_population.append(child2)
-            #print(child1)
-            #print(child2)
             winers.pop(0)
             winers.pop(0)
 
@@ -181,8 +128,6 @@ def hybridization(population, winers, probability, gen):
 
     new_population = np.asanyarray(new_population)
 
-    #print(new_population)
-
     return new_population
 
 
@@ -190,16 +135,14 @@ def hybridization(population, winers, probability, gen):
 
 
 #przejrzec
-def mutacja_test(population2, chance, genes, number):
+def mutation(population2, chance, genes, number):
     population2_size = population2.shape
     for i in range(population2_size[0]):
         chance_for_mutation = random.random()
-        # print(a)
+
         if chance_for_mutation < chance:
             for k in range(number):
                 mutation_place = random.randint(0, genes - 1)
-                # print('b=',b)
-                # print(popu[i])
                 ones = []
                 zeros = []
 
@@ -208,10 +151,7 @@ def mutacja_test(population2, chance, genes, number):
                     for k in range(len(population2[i,:])):
                         if population2[i,k] == 0:
                             zeros.append(k)
-                            #print(zeros)
                     population2[i,(random.choice(zeros))] = 0
-
-
 
                 else:
                     population2[i, mutation_place] = 1
@@ -223,22 +163,12 @@ def mutacja_test(population2, chance, genes, number):
 
     return population2
 
-            # print(popu[i])
-            #print("osobnik numer", i, "zmutował")
-
-
-
-#print("population")
-#for i in range(individual):
-    #print(population[i])
-#print(table_of_items)
-#print('capacity:', capacity)
 
 #stats
-individual = 40
+individual = 50
 population_number = 10000
-number_of_individuals_in_tournament = 0.4
-chance_for_mutation = 0.5
+number_of_individuals_in_tournament = 0.3
+chance_for_mutation = 0.02
 chance_for_hybridization = 0.85
 number_of_changes_in_mutation = 1
 best_in_all = 0
@@ -261,30 +191,9 @@ font_color = (0, 255, 65)
 clock = pygame.time.Clock()
 
 
-""""
-nump = np.random.randint(2, size=50)
-
-nump1 = np.array2string(nump, separator=".")
-text_best_individual = font.render(nump1, True, (0,255,65))
-
-file_name = font.render('File name: ' + "x", True, (0,255,65))
-text1 = font.render('Population number: ' + str(i), True, (0,255,65))
-text2 = font.render('Best individual in all populations: ' + str(best_in_all), True, (0,255,65))
-text3 = font.render('Avrage: ' + str(avrage), True, (0,255,65))
-text4 = font.render('Currently best individual: ' + str(best_in_population), True, (0,255,65))
-text5 = font.render('Individuals: ' + str(individual), True, (0,255,65))
-text6 = font.render('Genes: ' + str(genes), True, (0,255,65))
-text7 = font.render('Chance for mutation: ' + str(chance_for_mutation), True, (0,255,65))
-text8 = font.render('Click SPACE to start', True, (0,255,65))
-nump = np.random.randint(2, size=50)
-"""
-
-
-def draw():
+def draw(): #drawing information in to screen
     screen.fill(background_colour)
 
-    #nump = np.random.randint(2, size=50)#zmiana potem na najlepszego
-    #nump1 = np.array2string(nump, separator=".")
     text1 = font.render('Population number: ' + str(i), True, font_color)
     text2 = font.render('Best individual in all populations: ' + str(best_in_all), True, font_color)
     text3 = font.render('Average: ' + str(average), True, font_color)
@@ -293,7 +202,6 @@ def draw():
     text6 = font.render('Genes: ' + str(genes), True, font_color)
     text7 = font.render('Chance for mutation: ' + str(chance_for_mutation), True, font_color)
     text8 = font.render('Click SPACE to start', True, font_color)
-
 
     screen.blit(text1, (10, 10))
     screen.blit(text3, (10, (20 + text1.get_height())))
@@ -304,13 +212,9 @@ def draw():
     screen.blit(text7, (10, (70 + text1.get_height() * 6)))
     screen.blit(text8, (10, (screen_height - text1.get_height())))
 
-    pygame.display.flip()
-    pygame.display.update()
-
-
 draw()
-########matrix
-def matrix(population):
+
+def matrix(population): #drawing matrix of genes and individuals
     startx = 480
     starty = 60
     sizex = screen_width - startx - 10
@@ -320,14 +224,17 @@ def matrix(population):
     rect_sizey = sizey/pop_size[0]
     text1 = font.render('G  E  N  E  S', True, font_color)
     screen.blit(text1, (startx + sizex * 0.5 - text1.get_width(), starty - 50 ))
-    #text2 = font.render('...' + str(genes - 2) + ',' + str(genes - 1) + ',' + str(genes), True, font_color)
-    #screen.blit(text2, (startx + sizex - text2.get_width(), starty - 50 ))
     name = 'INDIVIDUALS'
     counter = 0
+
     for k in name:
         counter +=1
-        text2 = font.render(str(k), True, font_color)
-        screen.blit(text2, (startx - text2.get_width() - 25, starty + 100 + (text2.get_height() * counter)))
+        if k == "I": ##dokonczyc
+            text2 = font.render(str(k) , True, font_color)
+            screen.blit(text2, (startx - text2.get_width() - 25 - 4 , starty + 100 + (text2.get_height() * counter)))
+        else:
+            text2 = font.render(str(k), True, font_color)
+            screen.blit(text2, (startx - text2.get_width() - 25, starty + 100 + (text2.get_height() * counter)))
 
     for i in range(pop_size[0]):
         for j in range(pop_size[1]):
@@ -337,17 +244,20 @@ def matrix(population):
                 pygame.draw.rect(screen,(0,0,0),(startx + rect_sizex*j, starty + rect_sizey*i,rect_sizex,rect_sizey))
 
         """if i%2 == 0:
-            pygame.display.flip()
+            pygame.display.flip()  #here u can get matrix look of this program
             pygame.display.update()"""
 
     pygame.display.flip()
     pygame.display.update()
+
 running = True
 while running:
     clock.tick(20)
     keys =pygame.key.get_pressed()
+
     if keys[pygame.K_SPACE]:
         print(1)
+
         while best_in_all == 0:
             best_in_all = 0
             population = populationn(genes, individual)
@@ -357,23 +267,20 @@ while running:
         for i in range(population_number):
             backpack_stats = calc_backpack(population, table_of_items)
             adaptation, best_in_all, best_in_population = rating(backpack_stats, capacity, best_in_all)
-            print("the best individual in population number",i ,"has", best_in_population, 'value')
-            #print(adaptation)
+            #print("the best individual in population number",i ,"has", best_in_population, 'value')
             best40, average = tournament(population, adaptation, number_of_individuals_in_tournament)
-            print("average of this population is equal", average)
-            #print('assdasdasdsaadadssdasas' ,int((len(population[:,0]) * 0.4)))
+            #print("average of this population is equal", average)
             population = hybridization(population, best40, probability= chance_for_hybridization, gen=genes)
-            population = mutacja_test(population, chance_for_mutation, genes, number_of_changes_in_mutation)
+            population = mutation(population, chance_for_mutation, genes, number_of_changes_in_mutation)
             draw()
             matrix(population)
-
-#            time.sleep(0.6)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
 
-
+    pygame.display.flip()
+    pygame.display.update()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
