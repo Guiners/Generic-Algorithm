@@ -23,8 +23,8 @@ data = {
 table_of_items = pd.DataFrame(data, columns=['value', 'weight', 'ratio'])
 
 
-def populationn(gen, individual):
-    populatioon = np.zeros((individual, gen)) #makeing array of 0
+def create_population(gen, individual):
+    temporary_pop = np.zeros((individual, gen)) #makeing array of 0
     for i in range(individual):
         weight = 0 #weight of individual
         place = 0 #item to take
@@ -32,12 +32,12 @@ def populationn(gen, individual):
             place = random.randrange(0, gen)
             b = random.random() #take or not the item
             if b > 0.49:
-                populatioon[i, place] = 1 #addin item
+                temporary_pop[i, place] = 1 #addin item
                 weight += table_of_items.iat[place,1]
                 #if weight > capacity: #if its in capacity
                   #populatioon[i,place] = 0
 
-    return populatioon
+    return temporary_pop
 
 
 def calc_backpack(population, data): #tu moze byc bład
@@ -260,7 +260,7 @@ while running:
 
         while best_in_all == 0:
             best_in_all = 0
-            population = populationn(genes, individual)
+            population = create_population(genes, individual)
             backpack_stats = calc_backpack(population, table_of_items)
             adaptation, best_in_all, best_in_population = rating(backpack_stats , capacity, best_in_all)
 
